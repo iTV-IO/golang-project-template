@@ -1,6 +1,6 @@
 -include .env
 
-.PHONY: build tidy run debug
+.PHONY: build tidy run debug migrate-up migrate-down create-migration migrate-force migrate-status
 
 DB_URL=postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
 MIGRATE := migrate -path ./migrations -database $(DB_URL)
