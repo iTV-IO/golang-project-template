@@ -1,0 +1,18 @@
+[Unit]
+Description="{service name}"
+Requires=docker.service
+After=network.target
+
+[Service]
+Type=simple
+RemainAfterExit=true
+WorkingDirectory=path_to_project_folder
+EnvironmentFile=path_to_project_folder/.env
+ExecStart=/usr/bin/make -C path_to_project_folder docker-up
+ExecStop=/usr/bin/make -C path_to_project_folder docker-down
+TimeoutStartSec=0
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,24 +1,25 @@
-package handler
+package controller
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/quvonchbe05/golang-clean-architecture-template/internal/model/request"
+	todo_request "github.com/quvonchbe05/golang-clean-architecture-template/app/http/request/todo"
+	"github.com/quvonchbe05/golang-clean-architecture-template/internal/dto"
 	"github.com/quvonchbe05/golang-clean-architecture-template/internal/service"
 )
 
-type TodoHandler struct {
-	service *service.Service
+type TodoController struct {
+	service service.TodoService
 }
 
-func NewTodoHandler(service *service.Service) *TodoHandler {
-	return &TodoHandler{service: service}
+func NewTodoController(service service.TodoService) *TodoController {
+	return &TodoController{service: service}
 }
 
-func (h *TodoHandler) GetAllTodos(c *gin.Context) {
-	todos, err := h.service.Todo.GetAllTodos()
+func (h *TodoController) GetAllTodos(c *gin.Context) {
+	todos, err := h.service.GetAllTodos()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -29,7 +30,7 @@ func (h *TodoHandler) GetAllTodos(c *gin.Context) {
 	})
 }
 
-func (h *TodoHandler) GetTodoById(c *gin.Context) {
+func (h *TodoController) GetTodoById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
@@ -37,7 +38,7 @@ func (h *TodoHandler) GetTodoById(c *gin.Context) {
 		return
 	}
 
-	todos, err := h.service.Todo.GetTodoById(id)
+	todos, err := h.service.GetTodoById(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -48,15 +49,19 @@ func (h *TodoHandler) GetTodoById(c *gin.Context) {
 	})
 }
 
-func (h *TodoHandler) CreateTodo(c *gin.Context) {
-	var todo request.TodoCreate
+func (h *TodoController) CreateTodo(c *gin.Context) {
+	var todo todo_request.TodoCreateRequest
 
 	if err := c.ShouldBindJSON(&todo); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	id, err := h.service.Todo.CreateTodo(&todo)
+	dto := dto.TodoCreateDTO{
+		Title: todo.Title,
+	}
+
+	id, err := h.service.CreateTodo(dto)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
